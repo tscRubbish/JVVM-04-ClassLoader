@@ -22,6 +22,15 @@ public class RuntimeConstantPool {
     private JClass clazz;
     private Constant[] constants;
 
+    public Constant[] getConstants() {
+        return constants;
+    }
+    public Constant getConstants(int index){
+        return constants[index];
+    }
+    public JClass getClazz() {
+        return clazz;
+    }
     public RuntimeConstantPool(ConstantPool constantPool, JClass clazz) {
         this.clazz = clazz;
         ConstantPoolInfo[] infos = constantPool.getInfos();
@@ -89,12 +98,13 @@ public class RuntimeConstantPool {
                 default:
                     break;
             }
+            //System.out.println(constants[i].toString());
         }
 
     }
 
     public Constant getConstant(int index) {
         assert index >= 1;
-        return constants[index - 1];
+        return constants[index -1];
     }
 }

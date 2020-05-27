@@ -8,7 +8,9 @@ import lombok.Setter;
 @Setter
 public class IntWrapper implements Constant {
     private int value;
-
+    public int getValue() {
+        return value;
+    }
     public IntWrapper(int value) {
         this.value = value;
     }

@@ -8,7 +8,9 @@ import lombok.Setter;
 @Setter
 public class LongWrapper implements Constant {
     private long value;
-
+    public Long getValue() {
+        return value;
+    }
     public LongWrapper(long value) {
         this.value = value;
     }

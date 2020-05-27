@@ -18,11 +18,17 @@ public class MethodArea {
 
     @Setter @Getter
     private static Map<String, JClass> classMap;
-
     public static MethodArea getInstance() {
         return methodArea;
     }
 
+    public static void setClassMap(Map<String, JClass> classMap) {
+        MethodArea.classMap = classMap;
+    }
+
+    public static Map<String, JClass> getClassMap() {
+        return classMap;
+    }
     public JClass findClass(String className) {
         if (classMap.keySet().stream().anyMatch(name -> name.equals(className))) {
             return classMap.get(className);

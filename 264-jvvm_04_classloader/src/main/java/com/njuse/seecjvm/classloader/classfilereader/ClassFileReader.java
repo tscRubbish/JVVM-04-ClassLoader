@@ -76,6 +76,29 @@ public class ClassFileReader {
          *
          * Return the result once you read it.
          */
+        byte[] data;
+        if (privilege==null) privilege=new EntryType(EntryType.USER_ENTRY);
+        try {
+            if (privilege.getValue() >= EntryType.BOOT_ENTRY) {
+                data=bootClasspath.readClass(realClassName);
+                if (data!=null)
+                return Pair.of(data, EntryType.BOOT_ENTRY);
+            }
+        }catch (Exception e){}
+        try {
+            if (privilege.getValue() >= EntryType.EXT_ENTRY) {
+                data=extClasspath.readClass(realClassName);
+                if (data!=null)
+                return Pair.of(data, EntryType.EXT_ENTRY);
+            }
+        }catch (Exception e){}
+        try {
+            if (privilege.getValue() >= EntryType.USER_ENTRY) {
+                data=userClasspath.readClass(realClassName);
+                if (data!=null)
+                return Pair.of(data, EntryType.USER_ENTRY);
+            }
+        }catch (Exception e){}
         throw new ClassNotFoundException();
     }
 }

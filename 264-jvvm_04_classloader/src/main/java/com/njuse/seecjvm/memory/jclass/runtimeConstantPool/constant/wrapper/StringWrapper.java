@@ -9,7 +9,9 @@ import lombok.Setter;
 @Setter
 public class StringWrapper implements Constant {
     private String value;
-
+    public String getValue() {
+        return value;
+    }
     public StringWrapper(String value) {
         this.value = value;
     }

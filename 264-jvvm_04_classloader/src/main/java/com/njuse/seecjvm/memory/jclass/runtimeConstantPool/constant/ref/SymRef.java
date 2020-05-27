@@ -1,7 +1,9 @@
 package com.njuse.seecjvm.memory.jclass.runtimeConstantPool.constant.ref;
 
 import com.njuse.seecjvm.classloader.ClassLoader;
+import com.njuse.seecjvm.memory.MethodArea;
 import com.njuse.seecjvm.memory.jclass.JClass;
+import com.njuse.seecjvm.memory.jclass.Method;
 import com.njuse.seecjvm.memory.jclass.runtimeConstantPool.RuntimeConstantPool;
 import com.njuse.seecjvm.memory.jclass.runtimeConstantPool.constant.Constant;
 import lombok.Getter;
@@ -14,7 +16,7 @@ public abstract class SymRef implements Constant {
     public String className;    //format : java/lang/Object
     public JClass clazz;
 
-    public void resolveClassRef() throws ClassNotFoundException {
+    public void resolveClassRef() throws ClassNotFoundException,IllegalAccessException {
         //todo
         /**
          * Add some codes here.
@@ -33,5 +35,10 @@ public abstract class SymRef implements Constant {
          * Check the permission and throw IllegalAccessException
          * Don't forget to set the value of clazz with loaded class
          */
+        this.clazz=ClassLoader.getInstance().loadClass(className,runtimeConstantPool.getClazz().getLoadEntryType());
+       // this.clazz=MethodArea.getClassMap().get(className);
+        System.out.println(className);
+        System.out.println(runtimeConstantPool.getClazz().getName());
+        if (!this.clazz.isAccessibleTo(runtimeConstantPool.getClazz()))  throw new IllegalAccessException();
     }
 }

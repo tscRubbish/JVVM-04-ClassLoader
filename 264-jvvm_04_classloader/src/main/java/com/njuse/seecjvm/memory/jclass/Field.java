@@ -10,6 +10,15 @@ public class Field extends ClassMember {
     private int slotID;
     private int constValueIndex;
 
+    public int getSlotID() {
+        return slotID;
+    }
+    public void setSlotID(int slotID) {
+        this.slotID = slotID;
+    }
+    public int getConstValueIndex() {
+        return constValueIndex;
+    }
     public Field(FieldInfo info, JClass clazz) {
         this.clazz = clazz;
         accessFlags = info.getAccessFlags();

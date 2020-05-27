@@ -27,6 +27,60 @@ public class JClass {
     private int staticSlotCount;
     private Vars staticVars;
     private InitState initState;
+    public void setInitState(InitState initState) {
+        this.initState = initState;
+    }
+    public void setLoadEntryType(EntryType loadEntryType) {
+        this.loadEntryType = loadEntryType;
+    }
+    public void setStaticVars(Vars staticVars) {
+        this.staticVars = staticVars;
+    }
+    public void setStaticSlotCount(int staticSlotCount) {
+        this.staticSlotCount = staticSlotCount;
+    }
+    public void setInstanceSlotCount(int instanceSlotCount) {
+        this.instanceSlotCount = instanceSlotCount;
+    }
+    public Vars getStaticVars() {
+        return staticVars;
+    }
+    public InitState getInitState() {
+        return initState;
+    }
+    public RuntimeConstantPool getRuntimeConstantPool() {
+        return runtimeConstantPool;
+    }
+    public int getInstanceSlotCount() {
+        return instanceSlotCount;
+    }
+    public int getStaticSlotCount() {
+        return staticSlotCount;
+    }
+    public Field[] getFields() {
+        return fields;
+    }
+    public JClass getSuperClass() {
+        return superClass;
+    }
+    public String getName() {
+        return name;
+    }
+    public JClass[] getInterfaces() {
+        return interfaces;
+    }
+    public EntryType getLoadEntryType() {
+        return loadEntryType;
+    }
+    public String getSuperClassName() {
+        return superClassName;
+    }
+    public void setSuperClass(JClass superClass) {
+        this.superClass = superClass;
+    }
+    public String[] getInterfaceNames() {
+        return interfaceNames;
+    }
 
     public JClass(ClassFile classFile) {
         this.accessFlags = classFile.getAccessFlags();
@@ -81,6 +135,7 @@ public class JClass {
          * Add some codes here.
          * Refer to jvm specification 5.4.4
          */
+        if (isPublic()||caller.getPackageName().equals(getPackageName())) return true;
         return false;
     }
 }

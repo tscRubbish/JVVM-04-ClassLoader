@@ -51,8 +51,10 @@ public class ClassLoader {
             Pair<byte[], Integer> res = classFileReader.readClassFile(className, initiatingEntry);
             byte[] data = res.getKey();
             EntryType definingEntry = new EntryType(res.getValue());
+            //System.out.println(data.toString());
             //define class
             JClass clazz = defineClass(data, definingEntry);
+            clazz.setInitState(InitState.PREPARED);
             //link class
             linkClass(clazz);
             return clazz;
@@ -80,19 +82,27 @@ public class ClassLoader {
          * load interfaces of this class
          * add to method area
          */
+        clazz.setLoadEntryType(definingEntry);
+        resolveSuperClass(clazz,definingEntry);
+        resolveInterfaces(clazz);
+        methodArea.addClass(clazz.getName(),clazz);
+        //System.out.println(MethodArea.getClassMap().keySet());
         return clazz;
     }
 
     /**
      * load superclass before add to method area
      */
-    private void resolveSuperClass(JClass clazz) throws ClassNotFoundException {
+    private void resolveSuperClass(JClass clazz,EntryType definingEntry) throws ClassNotFoundException {
         //todo
         /**
          * Add some codes here.
          *
          * Use the load entry(defining entry) as initiating entry of super class
          */
+        if (clazz.getSuperClassName()=="") return;
+        clazz.setSuperClass(ClassLoader.getInstance().loadClass(clazz.getSuperClassName(),definingEntry));
+        //System.out.println(clazz.getName()+"'s  father="+clazz.getSuperClassName());
     }
 
     /**
@@ -105,6 +115,12 @@ public class ClassLoader {
          *
          * Use the load entry(defining entry) as initiating entry of interfaces
          */
+        if (clazz.getInterfaceNames().length==0) return;
+        int cnt=0;
+        for (String name:clazz.getInterfaceNames()){
+            JClass jc=ClassLoader.getInstance().loadClass(name,clazz.getLoadEntryType());
+            //System.out.println(clazz.getName()+"'sinterface="+jc.getName());
+        }
     }
 
     /**
@@ -135,6 +151,10 @@ public class ClassLoader {
          * step3
          *      set the init state
          */
+        calInstanceFieldSlotIDs(clazz);
+        calStaticFieldSlotIDs(clazz);
+        allocAndInitStaticVars(clazz);
+        clazz.setInitState(InitState.PREPARED);
     }
 
     /**
@@ -193,6 +213,30 @@ public class ClassLoader {
          *      switch by descriptor or some part of descriptor
          *      Handle basic type ZBCSIJDF and references (with new NullObject())
          */
+        Vars vars=clazz.getStaticVars();
+        if (!field.isStatic()) return;
+        int sid=field.getSlotID();
+        switch (field.descriptor){
+            case "I":
+            case "C":
+            case "S":
+            case "B":
+            case "Z":
+                vars.setInt(sid,0);
+                break;
+            case "F":
+                vars.setFloat(sid,0);
+                break;
+            case "D":
+                vars.setDouble(sid,0);
+                break;
+            case "J":
+                vars.setLong(sid,0);
+                break;
+            case "L":
+                vars.setObjectRef(sid,null);
+                break;
+        }
     }
 
     /**
@@ -216,6 +260,28 @@ public class ClassLoader {
          *  Example
          *      long longVal = ((LongWrapper) runtimeConstantPool.getConstant(constantPoolIndex)).getValue();
          */
+        Vars var=clazz.getStaticVars();
+        if (!field.isFinal()) return;
+        int sid=field.getSlotID(),cvi=field.getConstValueIndex();
+        System.out.println(field.descriptor+" "+field.name+" "+sid);
+        switch (field.descriptor){
+            case "I":
+            case "C":
+            case "S":
+            case "B":
+            case "Z":
+                var.setInt(sid,((IntWrapper)clazz.getRuntimeConstantPool().getConstant(cvi)).getValue());
+                break;
+            case "F":
+                var.setFloat(sid,((FloatWrapper)clazz.getRuntimeConstantPool().getConstant(cvi)).getValue());
+                break;
+            case "D":
+                var.setDouble(sid,((DoubleWrapper)clazz.getRuntimeConstantPool().getConstant(cvi)).getValue());
+                break;
+            case "J":
+                var.setLong(sid,((LongWrapper)clazz.getRuntimeConstantPool().getConstant(cvi)).getValue());
+                break;
+        }
     }
 
     /**
@@ -232,6 +298,8 @@ public class ClassLoader {
              *
              * Refer to manual for details.
              */
+            initDefaultValue(clazz,f);
+            loadValueFromRTCP(clazz,f);
         }
     }
 }
